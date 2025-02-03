@@ -1,0 +1,49 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [file, setFile] = useState(null);
+  const [videos, setVideos] = useState([]);
+
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('video', file);
+
+    try {
+      const response = await axios.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert(response.data);
+    } catch (error) {
+      alert('Error uploading video.');
+    }
+  };
+
+  const fetchVideos = async () => {
+    const response = await axios.get('/videos');
+    setVideos(response.data);
+  };
+
+  return (
+    <div>
+      <h1>Video Upload and Processing</h1>
+      <form onSubmit={handleUpload}>
+        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+        <button type="submit">Upload Video</button>
+      </form>
+      <button onClick={fetchVideos}>Fetch My Videos</button>
+      <h2>My Videos</h2>
+      <ul>
+        {videos.map(video => (
+          <li key={video._id}>
+            {video.filename} 
+            <a href={`/download/${video._id}`} download>Download</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
